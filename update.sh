@@ -4,7 +4,6 @@ set -eo pipefail
 declare -A php_version=(
 	[default]='7.4'
 	[18.0]='7.3'
-	[17.0]='7.3'
 )
 
 declare -A cmd=(
@@ -78,7 +77,7 @@ variants=(
 	fpm-alpine
 )
 
-min_version='17.0'
+min_version='18.0'
 
 # version_greater_or_equal A B returns whether A >= B
 function version_greater_or_equal() {
@@ -99,8 +98,6 @@ function check_rc_released() {
 function check_beta_released() {
 	printf '%s\n' "${fullversions_beta[@]}" | grep -qE "^$( echo "$1" | grep -oE '[[:digit:]]+(\.[[:digit:]]+){2}' )"
 }
-
-travisEnv=
 
 function create_variant() {
 	dir="$1/$variant"
@@ -146,7 +143,7 @@ function create_variant() {
 	esac
 
 	case "$version" in
-		17.*|18.* )
+		18.* )
 			sed -ri -e '
 				\@bcmath@d;
 				s/'"redis-${pecl_versions[redis]}"'/redis-4.3.0/g;
@@ -170,10 +167,6 @@ function create_variant() {
 	if [ "$variant" != "apache" ]; then
 		rm "$dir/config/apache-pretty-urls.config.php"
 	fi
-
-	for arch in i386 amd64; do
-		travisEnv='    - env: VERSION='"$1"' VARIANT='"$variant"' ARCH='"$arch"'\n'"$travisEnv"
-	done
 }
 
 curl -fsSL 'https://download.nextcloud.com/server/releases/' |tac|tac| \
@@ -260,11 +253,3 @@ for version in "${versions_alpha[@]}"; do
 		fi
 	fi
 done
-
-# remove everything after '- stage: test images'
-travis="$(awk '!p; /- stage: test images/ {p=1}' .travis.yml)"
-echo "$travis" > .travis.yml
-
-# replace the fist '-' with ' '
-travisEnv="$(echo "$travisEnv" | sed '0,/-/{s/-/ /}')"
-printf "$travisEnv" >> .travis.yml

@@ -1,5 +1,5 @@
 # DO NOT EDIT: created by update.sh from Dockerfile-alpine.template
-FROM php:7.4-fpm-alpine3.11
+FROM php:7.4-fpm-alpine3.12
 
 # entrypoint.sh and cron.sh dependencies
 RUN set -ex; \
@@ -52,9 +52,9 @@ RUN set -ex; \
     ; \
     \
 # pecl will claim success even if one install fails, so we need to perform each install separately
-    pecl install APCu-5.1.18; \
+    pecl install APCu-5.1.19; \
     pecl install memcached-3.1.5; \
-    pecl install redis-5.2.2; \
+    pecl install redis-5.3.2; \
     pecl install imagick-3.4.4; \
     \
     docker-php-ext-enable \
@@ -95,7 +95,7 @@ RUN { \
 VOLUME /var/www/html
 
 
-ENV NEXTCLOUD_VERSION 19.0.0
+ENV NEXTCLOUD_VERSION 19.0.6
 
 RUN set -ex; \
     apk add --no-cache --virtual .fetch-deps \
@@ -113,8 +113,8 @@ RUN set -ex; \
     gpg --batch --verify nextcloud.tar.bz2.asc nextcloud.tar.bz2; \
     tar -xjf nextcloud.tar.bz2 -C /usr/src/; \
     gpgconf --kill all; \
-    rm -r "$GNUPGHOME" nextcloud.tar.bz2.asc nextcloud.tar.bz2; \
-    rm -rf /usr/src/nextcloud/updater; \
+    rm nextcloud.tar.bz2.asc nextcloud.tar.bz2; \
+    rm -rf "$GNUPGHOME" /usr/src/nextcloud/updater; \
     mkdir -p /usr/src/nextcloud/data; \
     mkdir -p /usr/src/nextcloud/custom_apps; \
     chmod +x /usr/src/nextcloud/occ; \
