@@ -145,6 +145,7 @@ RUN set -ex; \
 
 COPY *.sh upgrade.exclude /
 COPY config/* /usr/src/nextcloud/config/
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 RUN mkdir -p /var/log/www/html
 
